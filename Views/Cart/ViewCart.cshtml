@@ -1,0 +1,174 @@
+﻿@model List<Product2>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "View Cart";
+}
+
+<style>
+    #icon {
+        float: right;
+    }
+</style>
+
+<h2>Your Cart Items</h2>
+@*
+<div>
+
+    <i class="carousel-control-next-icon" id="icon">
+        <a href="@Url.Action("ViewCart","Cart")">
+            <span id="cartItemCount" style="color: red; font-weight: bold;">@ViewBag.Quantity</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-cart3" viewBox="0 0 16 16">
+                <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l.84 4.479 9.144-.459L13.89 4zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+
+            </svg>
+
+        </a>
+    </i>
+</div>
+*@
+@if (Model != null && Model.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ProductId</th>
+                <th>ProductImage</th>
+                <th>Product Name</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Update Quantity</th>
+                <th>Action</th>
+             </tr>
+        </thead>
+        <tbody>
+            
+            @foreach(var item in Model)
+            {
+                <tr id="row_@item.ProductId">
+                    <td>@item.ProductId</td>
+                    <td><img src="data:image/jpeg;base64,@(Convert.ToBase64String(item.ImageFile))" alt="@item.ProductName" style="max-width: 100px; max-height: 100px;" /></td>
+                    <td>@item.ProductName</td>
+                    <td>@item.Description</td>
+                    <td>@item.StockQuantity</td>
+                    <td>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="quantity_@item.ProductId" value="@item.StockQuantity" min="1" />
+                            <div class="input-group-append">
+                                <button class="btn btn-success" type="button" onclick="updateQuantity(@item.ProductId)">Update</button>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn btn-danger" type="button" onclick="removeCartItem(@item.ProductId)">Delete</button>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="row">
+        <div class="col-sm-6">
+            <button class="btn btn-danger" type="button" onclick="clearCart()">Clear Cart</button>
+        </div>
+
+    </div>
+}
+else
+{
+ <p>Your cart is empty.</p>
+}
+
+@section Scripts {
+    <script>
+        function updateQuantity(productId) {
+            var quantity = $('#quantity_' + productId).val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateCartQuantity","Cart")',
+                type: 'POST',
+                data: { productId: productId, quantity: quantity },
+                success: function (response) {
+                   // alert('Quantity updated successfully!');
+                    updateCartItemCount();
+                    location.reload();
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                    alert("An error occurred while updating quantity");
+                }
+            });
+        }
+        function updateCartItemCount() {
+            $.ajax({
+                url: '@Url.Action("CartItems", "Cart")',
+                type: 'GET',
+                success: function (responseArray) {
+                    console.log(responseArray)
+
+                    // Initialize a variable to store the total quantity sum
+                    let totalQuantitySum = 0;
+
+                    // Iterate through each object in the responseArray
+                    responseArray.forEach(item => {
+                        // Add the quantity of the current item to totalQuantitySum
+                        totalQuantitySum = totalQuantitySum + item.quantity;
+                    });
+                    console.log("Total quantity sum:", totalQuantitySum);
+
+                    $('#cartItemCount').text(totalQuantitySum)
+
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                    alert("An error occurred while updating cart item count.");
+                }
+            });
+        }
+
+        function removeCartItem(productId) {
+            if (confirm('Are you sure you want to Delete this Product from your cart?')) {
+                $.ajax({
+                    url: '@Url.Action("RemoveCartItem", "Cart")',
+                    type: 'POST',
+                    data: { productId: productId },
+                    success: function (response) {
+                       // alert('Product removed from cart successfully!');
+                        $('#row_' + productId).remove();
+                        updateCartItemCount();
+                    
+                    
+                     
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        alert("An error occurred while removing Product from cart");
+                    }
+                });
+            }
+        }
+
+        function clearCart() {
+            if (confirm('Are you sure you want to clear your entire cart?')) {
+                $.ajax({
+                    url: '@Url.Action("ClearCart", "Cart")',
+                    type: 'POST',
+                    success: function (response) {
+                      //  alert('Cart cleared successfully!');
+                        $('table tbody').empty();
+                        updateCartItemCount(); 
+                   
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        alert("An error occurred while clearing the cart.");
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function () {
+            updateCartItemCount();
+        });
+    </script>
+}

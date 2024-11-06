@@ -1,0 +1,10 @@
+﻿@model IList<ComponentIcons>
+<p class="col-md-12" style="padding-top:50px;">
+    @foreach(var icon in Model)
+    {
+        <a style="background:@icon.IconBgColour" href="@icon.IconTargetUrl">
+            <i class="@icon.IconClass"></i>
+            @icon.IconName
+        </a>
+    }
+</p>

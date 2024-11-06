@@ -1,0 +1,181 @@
+﻿@using System.Security.Claims
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Task2product</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Task2product.styles.css" asp-append-version="true" />
+      <style>
+        .col-md-12 {
+            flex: 0 0 auto;
+            flex-grow: 0;
+            flex-shrink: 0;
+            flex-basis: auto;
+            width: 100%;
+            display: contents;
+        }
+
+        .border-top {
+          
+            position: absolute;
+            bottom: 0;
+            width: 50px;
+            white-space: nowrap;
+            line-height: 90px;
+        
+        }
+
+        .col-md-6
+        {
+            position:relative;
+
+        }
+    </style>
+</head>
+
+
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Task2product</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                     
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                     </ul>
+                  
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        var userName = User.FindFirstValue(ClaimTypes.Name);
+                        var Role = User.FindFirstValue(ClaimTypes.Role);
+                        <div>
+                            <ul class="navbar-nav flex-grow-1">
+                                <li>
+                                    <a href="@Url.Action("ViewCart","Cart")">
+                                     
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-cart3" viewBox="0 0 16 16">
+                                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l.84 4.479 9.144-.459L13.89 4zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+
+                                        </svg>
+                                        <span id="cartItemCount" style="color: red; font-weight: bold;">@ViewBag.Quantity</span>
+                                    </a>
+                                </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ProductController2" asp-action="Index">Products</a>
+                        </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <ul class="navbar-nav flex-grow-1">
+                               
+                            </ul>
+                        </div>
+                        <div>
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area=@Role asp-controller=@Role asp-action="Index">Welcome @Role</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Profile">@userName</a>
+                                </li>
+                                
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Logout">Logout</a>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <div>
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Add">Registration</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Login">Login</a>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                  
+                    
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <div class="row">
+
+    </div>
+    <footer class="border-top footer text-muted">
+        <div class="row">
+        <div class="col-md-6">
+            &copy; 2024 - Task2product - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+        <div class="col-md-6" id="view">
+            @await Component.InvokeAsync("Product", new { IconsToShow = 5 })
+        </div>
+        </div>
+    </footer>
+  
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>
+<script>
+    function updateCartItemCount() {
+        $.ajax({
+            url: '@Url.Action("CartItems", "Cart")',
+            type: 'GET',
+            success: function (responseArray) {
+                console.log(responseArray)
+
+                // Initialize a variable to store the total quantity sum
+                let totalQuantitySum = 0;
+
+                // Iterate through each object in the responseArray
+                responseArray.forEach(item => {
+                    // Add the quantity of the current item to totalQuantitySum
+                    totalQuantitySum = totalQuantitySum + item.quantity;
+                });
+
+                // Log the total quantity sum
+                console.log("Total quantity sum:", totalQuantitySum);
+
+                $('#cartItemCount').text(totalQuantitySum)
+
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+             //   alert("An error occurred while updating cart item count.");
+            }
+        });
+    }
+   $(document).ready(function () {
+        updateCartItemCount();
+    });
+
+</script>

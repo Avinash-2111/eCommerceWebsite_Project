@@ -1,0 +1,188 @@
+﻿@using System.Security.Claims
+@using Task2product.Models
+@model Views_Customer_Login
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml"; 
+    ViewData["Title"] = "Admin Dashboard"; 
+    List<Customer> list1 = ViewBag.List1;
+    List<CustomerRoles> list2 = ViewBag.List2;
+    List<RoleMapping> list3 = ViewBag.List3;
+    List<RoleMapping> customerselectedrolelist4 = ViewBag.customerselectedrole;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+
+        h1 {
+            color:darkorange;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .btn-danger {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WELCOME TO ADMIN DASHBOARD</h1>
+        <h2 style=" background:border-box;font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; color:darkgreen">Hii @User.Identity.Name!</h2>
+
+        <div class="row mb-4">
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="searchString" name="searchString" placeholder="Search Customers">
+            </div>
+            <div class="col-sm-4">
+                <button type="button" class="btn btn-danger" id="deleteSelected">Delete Selected Customers</button>
+            </div>
+        </div>
+
+        <table id="CustomerTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAll" data-id="customer-id" class="rowCheckbox"></th>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Username</th>
+                    <th>Gender</th>
+                    <th>Phone</th>
+                    <th>Roles</th>
+                    <th>Action</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var customer in list1)
+                {
+                    <tr id="row_@customer.CustomerId">
+                        <td><input type="checkbox" class="rowCheckbox" data-customer-id="@customer.CustomerId"></td>
+                        <td>@customer.CustomerId</td>
+                        <td>@customer.FirstName</td>
+                        <td>@customer.LastName</td>
+                        <td>@customer.Username</td>
+                        <td>@customer.Gender</td>
+                        <td>@customer.Phone</td>
+                        <td>
+                            @foreach (var roleId in list3.Where(r => r.CustomerId == customer.CustomerId).Select(r => r.RoleId))
+                            {
+                                var roleName = list2.FirstOrDefault(r => r.RoleId == roleId)?.RoleName;
+                                if (!string.IsNullOrEmpty(roleName))
+                                {
+                                    <span>@roleName</span>
+
+                                    <br>
+                                }
+                            }
+                        </td>
+                        <td>
+                            <a href="@Url.Action("Edit", "Admin", new { customerId = @customer.CustomerId })" class="btn btn-primary">Edit</a>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger" data-delete-itemid="@customer.CustomerId" onclick="return confirm('Are You Sure Want to Delete?')">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        
+        $('#deleteSelected').click(function () {
+            var selectedIds = [];
+            $('.rowCheckbox:checked').each(function () {
+                var CustomerId = $(this).data('customer-id');
+                selectedIds.push(CustomerId);
+            });
+
+            if (selectedIds.length === 0) {
+                alert("Please select at least one Customer to delete.");
+                return;
+            }
+
+            var confirmDelete = confirm("Are you sure you want to delete the selected Customers?");
+            if (!confirmDelete) {
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("DeleteBulk", "Admin")',
+                type: 'POST',
+                data: { ids: selectedIds },
+                success: function (response) {
+                    console.log(response);
+                    selectedIds.forEach(function (id) {
+                        $('#row_' + id).remove();
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                    alert("An error occurred during deletion.");
+                }
+            });
+        });
+
+        $('#CustomerTable').on('click', '.btn-danger', function () {
+            var id = $(this).data('delete-itemid');
+            $.ajax({
+                url: '@Url.Action("Delete", "Admin")/' + id,
+                type: 'GET',
+                success: function (customers) {
+                    alert('Customer deleted successfully');
+                    $('#row_' + id).remove();
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                    alert("An error occurred while deleting the Customer.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
