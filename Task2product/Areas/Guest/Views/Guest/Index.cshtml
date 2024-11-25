@@ -1,0 +1,16 @@
+﻿@using System.Security.Claims
+@model Views_Customer_Login
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Specify the layout path
+    ViewData["Title"] = "Guest Dashboard"; // Set the title of the page
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <h1><Center>WELCOME TO GUEST DASHBOARD</Center></h1>
+    <h2>Hii @User.Identity.Name..!!</h2>
+    <button type="Submit" asp-action="Index" asp-controller="Admin">Get All Customers</button>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+</html>
