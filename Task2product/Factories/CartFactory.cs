@@ -24,7 +24,7 @@ namespace Task2product.Factories
 
         public async Task<int> customercartquantity(int CustomerId)
         {
-              var p=  await _icartservice.customercartquantity(CustomerId);
+            var p=await _icartservice.customercartquantity(CustomerId);
             return p;
         }
 
@@ -34,6 +34,7 @@ namespace Task2product.Factories
             {
                 return await _icartservice.GetAll(CustomerId);
             }
+            
             catch(Exception ex)
             {
                 throw new NotImplementedException(ex.Message);
@@ -47,10 +48,10 @@ namespace Task2product.Factories
               {
                 return await _icartservice.Remove(CustomerId, ProductId);
               }
-            catch(Exception ex)
-            {
+              catch(Exception ex)
+              {
                 throw new NotImplementedException();
-            }
+              }
            
         }
 
